@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Al Tazaj – Campaign Spend Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy:    #0c0e1d;
+      --yellow:  #ffc409;
+      --teal:    #96c7c3;
+      --teal-dk: #3a8a86;
+      --pink:    #cc5f73;
+      --bg:      #f3f4f9;
+      --card:    #ffffff;
+      --border:  #e2e4ef;
+      --text:    #0c0e1d;
+      --muted:   #7c7f96;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Baloo Bhaijaan 2', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 48px 32px 80px;
+    }
+    .page { max-width: 1120px; margin: 0 auto; }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--navy);
+      border-radius: 18px;
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--yellow);
+      line-height: 1.1;
+    }
+    .header .sub {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.95rem;
+      margin-top: 5px;
+    }
+    .header-right { text-align: right; }
+    .badge-over {
+      display: inline-block;
+      background: var(--pink);
+      color: #fff;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .rdate {
+      color: rgba(255,255,255,0.35);
+      font-size: .8rem;
+      margin-top: 8px;
+    }
+
+    /* ── KPI CARDS ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .kpi {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 22px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      border-radius: 14px 0 0 14px;
+    }
+    .kpi.k-yellow::before { background: var(--yellow); }
+    .kpi.k-navy::before   { background: var(--navy); }
+    .kpi.k-teal::before   { background: var(--teal); }
+    .kpi.k-pink::before   { background: var(--pink); }
+
+    .kpi-lbl {
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .kpi-val { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .kpi-val.y  { color: #b08900; }
+    .kpi-val.n  { color: var(--navy); }
+    .kpi-val.t  { color: var(--teal-dk); }
+    .kpi-val.p  { color: var(--pink); }
+    .kpi-sub { font-size: .72rem; color: var(--muted); margin-top: 6px; }
+
+    /* ── SECTION TITLE ── */
+    .stitle {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stitle::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* ── PACING CARD ── */
+    .pacing-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 30px;
+      margin-bottom: 24px;
+    }
+    .pacing-dual { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+    .pacing-lbl {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      font-size: .88rem;
+    }
+    .pacing-lbl .plabel { color: var(--muted); }
+    .pacing-lbl .pval   { font-weight: 700; }
+    .bar-bg {
+      height: 12px;
+      background: #eaecf6;
+      border-radius: 8px;
+      overflow: visible;
+      position: relative;
+    }
+    .bar-fill { height: 100%; border-radius: 8px; }
+    .bar-marker {
+      position: absolute;
+      top: -4px;
+      width: 2px;
+      height: 20px;
+      background: var(--navy);
+      border-radius: 2px;
+      opacity: .35;
+    }
+    .bar-footnote {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      font-size: .7rem;
+      color: var(--muted);
+    }
+    .pacing-alert {
+      margin-top: 24px;
+      padding: 14px 18px;
+      background: #fef3f5;
+      border: 1px solid #f0c0ca;
+      border-radius: 10px;
+      font-size: .84rem;
+      line-height: 1.65;
+      color: #7a2a3a;
+    }
+    .pacing-alert strong { color: var(--pink); }
+
+    /* ── TABLE WRAPPER ── */
+    .tbl-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--navy); }
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: rgba(255,255,255,.7);
+    }
+    th.r, td.r { text-align: right; }
+    th.c, td.c { text-align: center; }
+    td {
+      padding: 13px 16px;
+      font-size: .88rem;
+      border-top: 1px solid var(--border);
+      color: var(--text);
+    }
+    tbody tr:hover td { background: #f8f9fd; }
+    tfoot tr td {
+      border-top: 2px solid var(--border);
+      background: #fafbff;
+    }
+
+    .pname { display:flex; align-items:center; gap:9px; font-weight:700; }
+    .dot   { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+    .over  { color: var(--pink); font-weight: 700; }
+    .ontk  { color: var(--teal-dk); font-weight: 700; }
+
+    .chip {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .chip-over { background: #fdeef1; color: var(--pink); border: 1px solid #f0c0ca; }
+    .chip-ok   { background: #eef8f7; color: var(--teal-dk); border: 1px solid #b0d8d5; }
+    .chip-cur  { background: #fff8e0; color: #8a6500; border: 1px solid #f0d060; }
+    .chip-dim  { background: #f2f3f8; color: var(--muted); border: 1px solid var(--border); }
+
+    /* mini bar in table */
+    .mini-bg   { width:72px; height:6px; background:#eaecf6; border-radius:3px; overflow:hidden; display:inline-block; vertical-align:middle; }
+    .mini-fill { height:100%; border-radius:3px; }
+
+    /* ── CHART SECTION ── */
+    .chart-row { display:grid; grid-template-columns:3fr 2fr; gap:16px; margin-bottom:24px; }
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 26px;
+    }
+    .chart-lbl {
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    .chart-wrap { position: relative; height: 260px; }
+
+    /* ── WEEK TABLE rows ── */
+    tr.w-done   td { color: var(--muted); }
+    tr.w-done   td .pname, tr.w-done td .chip { opacity: .75; }
+    tr.w-now    td { background: #fffbee; }
+    tr.w-future td { color: #c0c2d0; }
+    tr.w-future td .chip { opacity: .5; }
+
+    /* ── FINDINGS ── */
+    .findings {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .fcard {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      border-left-width: 4px;
+    }
+    .fcard.warn { border-left-color: var(--pink); background: #fdf8f9; }
+    .fcard.info { border-left-color: var(--teal); background: #f5fbfb; }
+    .fcard-ttl { font-size: .84rem; font-weight: 700; margin-bottom: 8px; }
+    .fcard.warn .fcard-ttl { color: var(--pink); }
+    .fcard.info .fcard-ttl { color: var(--teal-dk); }
+    .fcard-txt { font-size: .82rem; color: #4a4d63; line-height: 1.68; }
+    .fcard-txt strong { color: var(--navy); }
+
+    /* ── REM NOTE ── */
+    .rem-note {
+      margin-top: 10px;
+      padding: 12px 18px;
+      background: #f5fbfb;
+      border: 1px solid #c8e6e4;
+      border-radius: 10px;
+      font-size: .78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .rem-note strong { color: var(--teal-dk); }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: .74rem;
+    }
+
+    @media(max-width:900px){
+      .kpi-row { grid-template-columns: repeat(2,1fr); }
+      .pacing-dual, .chart-row, .findings { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Al Tazaj Campaign</h1>
+      <div class="sub">Media Spend Pacing Report &nbsp;·&nbsp; Apr 2 – May 13, 2026</div>
+    </div>
+    <div class="header-right">
+      <span class="badge-over">⚠ Ahead of Pacing</span>
+      <div class="rdate">Report date: April 21, 2026</div>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-row">
+    <div class="kpi k-yellow">
+      <div class="kpi-lbl">Total PO Budget</div>
+      <div class="kpi-val y">450,000</div>
+      <div class="kpi-sub">SAR &middot; 5 platforms &middot; 6 weeks</div>
+    </div>
+    <div class="kpi k-navy">
+      <div class="kpi-lbl">Total Spent to Date</div>
+      <div class="kpi-val n">244,169</div>
+      <div class="kpi-sub">SAR &middot; Apr 2 – Apr 21 (20 days)</div>
+    </div>
+    <div class="kpi k-teal">
+      <div class="kpi-lbl">Remaining Budget</div>
+      <div class="kpi-val t">205,831</div>
+      <div class="kpi-sub">SAR &middot; 22 days left</div>
+    </div>
+    <div class="kpi k-pink">
+      <div class="kpi-lbl">Overspend vs. Expected Pace</div>
+      <div class="kpi-val p">+29,884</div>
+      <div class="kpi-sub">SAR &middot; +13.9% above expected</div>
+    </div>
+  </div>
+
+  <!-- PACING OVERVIEW -->
+  <div class="stitle">Campaign Pacing Overview</div>
+  <div class="pacing-card">
+    <div class="pacing-dual">
+      <div>
+        <div class="pacing-lbl">
+          <span class="plabel">Time Elapsed</span>
+          <span class="pval" style="color:var(--teal-dk)">Day 20 of 42 &nbsp;(47.6%)</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:47.6%; background:var(--teal);"></div>
+        </div>
+        <div class="bar-footnote"><span>Apr 2</span><span>May 13</span></div>
+      </div>
+      <div>
+        <div class="pacing-lbl">
+          <span class="plabel">Budget Consumed</span>
+          <span class="pval" style="color:var(--pink)">244,169 SAR &nbsp;(54.3%)</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:54.3%; background:linear-gradient(90deg,#e8a800,var(--pink));"></div>
+          <div class="bar-marker" style="left:47.6%;"></div>
+        </div>
+        <div class="bar-footnote">
+          <span>0 SAR</span>
+          <span style="color:var(--navy); opacity:.5;">&#9650; expected (47.6%)</span>
+          <span>450,000 SAR</span>
+        </div>
+      </div>
+    </div>
+    <div class="pacing-alert">
+      <strong>Pacing Alert:</strong> Budget consumption is running 6.7 points ahead of the campaign timeline. At the current rate, funds will be exhausted around <strong>May 8</strong>, five days before the flight ends. Recommended combined daily cap going forward: <strong>9,356 SAR/day</strong>.
+    </div>
+  </div>
+
+  <!-- PLATFORM TABLE -->
+  <div class="stitle">Platform Comparison — Actual vs. Expected</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th class="r">PO Budget (SAR)</th>
+          <th class="r">Weekly Plan</th>
+          <th class="r">Expected by Apr 21</th>
+          <th class="r">Actual Spent</th>
+          <th class="r">Variance (SAR)</th>
+          <th class="r">Variance (%)</th>
+          <th class="c">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#e05555"></div>TikTok</div></td>
+          <td class="r">130,000</td>
+          <td class="r">21,667</td>
+          <td class="r">61,905</td>
+          <td class="r">74,230</td>
+          <td class="r over">+12,326</td>
+          <td class="r over">+19.9%</td>
+          <td class="c"><span class="chip chip-over">Over</span></td>
+        </tr>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#d4860a"></div>YouTube</div></td>
+          <td class="r">70,000</td>
+          <td class="r">11,667</td>
+          <td class="r">33,333</td>
+          <td class="r">40,697</td>
+          <td class="r over">+7,364</td>
+          <td class="r over">+22.1%</td>
+          <td class="c"><span class="chip chip-over">Over</span></td>
+        </tr>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#5a9a96"></div>Instagram / META</div></td>
+          <td class="r">70,000</td>
+          <td class="r">11,667</td>
+          <td class="r">33,333</td>
+          <td class="r">39,645</td>
+          <td class="r over">+6,312</td>
+          <td class="r over">+18.9%</td>
+          <td class="c"><span class="chip chip-over">Over</span></td>
+        </tr>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#f7941d"></div>Snapchat</div></td>
+          <td class="r">100,000</td>
+          <td class="r">16,667</td>
+          <td class="r">47,619</td>
+          <td class="r">51,569</td>
+          <td class="r over">+3,950</td>
+          <td class="r over">+8.3%</td>
+          <td class="c"><span class="chip chip-over">Over</span></td>
+        </tr>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#1da1f2"></div>X (Twitter)</div></td>
+          <td class="r">80,000</td>
+          <td class="r">13,333</td>
+          <td class="r">38,095</td>
+          <td class="r">38,027</td>
+          <td class="r ontk">&minus;68</td>
+          <td class="r ontk">&minus;0.2%</td>
+          <td class="c"><span class="chip chip-ok">On Track</span></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td style="font-weight:800">TOTAL</td>
+          <td class="r" style="font-weight:800">450,000</td>
+          <td class="r" style="font-weight:800">75,000</td>
+          <td class="r" style="font-weight:800;color:var(--teal-dk)">214,286</td>
+          <td class="r" style="font-weight:800">244,169</td>
+          <td class="r over" style="font-weight:800">+29,884</td>
+          <td class="r over" style="font-weight:800">+13.9%</td>
+          <td class="c"><span class="chip chip-over">Over</span></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="stitle">Visual Analysis</div>
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-lbl">Actual vs. Expected Spend by Platform (SAR)</div>
+      <div class="chart-wrap"><canvas id="cmp"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-lbl">% of PO Budget Consumed — expected: 47.6%</div>
+      <div class="chart-wrap"><canvas id="pct"></canvas></div>
+    </div>
+  </div>
+
+  <!-- WEEK BY WEEK -->
+  <div class="stitle">Week-by-Week Planned Schedule</div>
+  <div class="tbl-wrap" style="margin-bottom:8px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Week</th>
+          <th>Dates</th>
+          <th class="r">X</th>
+          <th class="r">Instagram</th>
+          <th class="r">TikTok</th>
+          <th class="r">Snapchat</th>
+          <th class="r">YouTube</th>
+          <th class="r">Weekly Total</th>
+          <th class="r">Cumul. Plan</th>
+          <th class="c">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="w-done">
+          <td style="font-weight:700">W1</td>
+          <td style="font-size:.82rem">Apr 2 – 8</td>
+          <td class="r">13,333</td><td class="r">11,667</td><td class="r">21,667</td>
+          <td class="r">16,667</td><td class="r">11,667</td>
+          <td class="r" style="font-weight:700">75,000</td>
+          <td class="r">75,000</td>
+          <td class="c"><span class="chip chip-ok">Completed</span></td>
+        </tr>
+        <tr class="w-done">
+          <td style="font-weight:700">W2</td>
+          <td style="font-size:.82rem">Apr 9 – 15</td>
+          <td class="r">13,333</td><td class="r">11,667</td><td class="r">21,667</td>
+          <td class="r">16,667</td><td class="r">11,667</td>
+          <td class="r" style="font-weight:700">75,000</td>
+          <td class="r">150,000</td>
+          <td class="c"><span class="chip chip-ok">Completed</span></td>
+        </tr>
+        <tr class="w-now">
+          <td style="font-weight:800;color:#8a6500">W3 &#9733;</td>
+          <td style="font-size:.82rem">Apr 16 – 22</td>
+          <td class="r">13,333</td><td class="r">11,667</td><td class="r">21,667</td>
+          <td class="r">16,667</td><td class="r">11,667</td>
+          <td class="r" style="font-weight:700">75,000</td>
+          <td class="r" style="font-weight:700;color:#8a6500">225,000</td>
+          <td class="c"><span class="chip chip-cur">In Progress</span></td>
+        </tr>
+        <tr class="w-future">
+          <td style="font-weight:700">W4</td>
+          <td style="font-size:.82rem">Apr 23 – 29</td>
+          <td class="r">13,333</td><td class="r">11,667</td><td class="r">21,667</td>
+          <td class="r">16,667</td><td class="r">11,667</td>
+          <td class="r" style="font-weight:700">75,000</td>
+          <td class="r">300,000</td>
+          <td class="c"><span class="chip chip-dim">Upcoming</span></td>
+        </tr>
+        <tr class="w-future">
+          <td style="font-weight:700">W5</td>
+          <td style="font-size:.82rem">Apr 30 – May 6</td>
+          <td class="r">13,333</td><td class="r">11,667</td><td class="r">21,667</td>
+          <td class="r">16,667</td><td class="r">11,667</td>
+          <td class="r" style="font-weight:700">75,000</td>
+          <td class="r">375,000</td>
+          <td class="c"><span class="chip chip-dim">Upcoming</span></td>
+        </tr>
+        <tr class="w-future">
+          <td style="font-weight:700">W6</td>
+          <td style="font-size:.82rem">May 7 – 13</td>
+          <td class="r">13,335</td><td class="r">11,665</td><td class="r">21,665</td>
+          <td class="r">16,665</td><td class="r">11,665</td>
+          <td class="r" style="font-weight:700">75,000</td>
+          <td class="r">450,000</td>
+          <td class="c"><span class="chip chip-dim">Upcoming</span></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" style="font-weight:800">TOTAL PO</td>
+          <td class="r" style="font-weight:800">80,000</td>
+          <td class="r" style="font-weight:800">70,000</td>
+          <td class="r" style="font-weight:800">130,000</td>
+          <td class="r" style="font-weight:800">100,000</td>
+          <td class="r" style="font-weight:800">70,000</td>
+          <td class="r" style="font-weight:800">450,000</td>
+          <td class="r"></td><td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <div class="rem-note">
+    <strong>Note:</strong> Actual spend data is a cumulative total for Apr 2–21 and cannot be broken down by individual week. The campaign had no prescribed weekly target; this schedule is used as a pacing reference only.
+  </div>
+
+  <!-- REMAINING BUDGET -->
+  <div class="stitle" style="margin-top:24px;">Remaining Budget &amp; Adjusted Daily Targets</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th class="r">PO Budget (SAR)</th>
+          <th class="r">Spent to Date</th>
+          <th class="r">Remaining (SAR)</th>
+          <th class="r">% of PO Used</th>
+          <th class="r">Daily Target (22 days)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#e05555"></div>TikTok</div></td>
+          <td class="r">130,000</td><td class="r">74,230</td>
+          <td class="r" style="color:var(--teal-dk);font-weight:700">55,770</td>
+          <td class="r">
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+              <div class="mini-bg"><div class="mini-fill" style="width:57.1%;background:var(--pink);"></div></div>
+              <span class="over">57.1%</span>
+            </div>
+          </td>
+          <td class="r">2,535</td>
+        </tr>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#d4860a"></div>YouTube</div></td>
+          <td class="r">70,000</td><td class="r">40,697</td>
+          <td class="r" style="color:var(--teal-dk);font-weight:700">29,303</td>
+          <td class="r">
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+              <div class="mini-bg"><div class="mini-fill" style="width:58.1%;background:var(--pink);"></div></div>
+              <span class="over">58.1%</span>
+            </div>
+          </td>
+          <td class="r">1,332</td>
+        </tr>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#5a9a96"></div>Instagram / META</div></td>
+          <td class="r">70,000</td><td class="r">39,645</td>
+          <td class="r" style="color:var(--teal-dk);font-weight:700">30,355</td>
+          <td class="r">
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+              <div class="mini-bg"><div class="mini-fill" style="width:56.6%;background:var(--pink);"></div></div>
+              <span class="over">56.6%</span>
+            </div>
+          </td>
+          <td class="r">1,380</td>
+        </tr>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#f7941d"></div>Snapchat</div></td>
+          <td class="r">100,000</td><td class="r">51,569</td>
+          <td class="r" style="color:var(--teal-dk);font-weight:700">48,431</td>
+          <td class="r">
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+              <div class="mini-bg"><div class="mini-fill" style="width:51.6%;background:var(--pink);"></div></div>
+              <span class="over">51.6%</span>
+            </div>
+          </td>
+          <td class="r">2,201</td>
+        </tr>
+        <tr>
+          <td><div class="pname"><div class="dot" style="background:#1da1f2"></div>X (Twitter)</div></td>
+          <td class="r">80,000</td><td class="r">38,027</td>
+          <td class="r" style="color:var(--teal-dk);font-weight:700">41,973</td>
+          <td class="r">
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+              <div class="mini-bg"><div class="mini-fill" style="width:47.5%;background:var(--teal);"></div></div>
+              <span class="ontk">47.5%</span>
+            </div>
+          </td>
+          <td class="r">1,908</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td style="font-weight:800">TOTAL</td>
+          <td class="r" style="font-weight:800">450,000</td>
+          <td class="r" style="font-weight:800">244,169</td>
+          <td class="r" style="font-weight:800;color:var(--teal-dk)">205,831</td>
+          <td class="r over" style="font-weight:800">54.3%</td>
+          <td class="r" style="font-weight:800">9,356</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- KEY FINDINGS -->
+  <div class="stitle">Key Findings</div>
+  <div class="findings">
+    <div class="fcard warn">
+      <div class="fcard-ttl">&#9888; YouTube — Most Aggressively Overpaced</div>
+      <div class="fcard-txt">
+        Highest overspend rate at <strong>+22.1%</strong> despite having the smallest per-platform allocation. With the least runway of any platform, YouTube requires the sharpest immediate daily cap reduction to avoid burning out before the campaign ends.
+      </div>
+    </div>
+    <div class="fcard warn">
+      <div class="fcard-ttl">&#9888; TikTok — Largest Absolute Overrun</div>
+      <div class="fcard-txt">
+        Biggest raw overspend of any platform. TikTok has the largest PO allocation and still has meaningful budget remaining, but at its current pace it will also exhaust early. First priority for daily cap adjustment given the dollar magnitude.
+      </div>
+    </div>
+    <div class="fcard warn">
+      <div class="fcard-ttl">&#9888; Instagram and Snapchat — Moderately Over</div>
+      <div class="fcard-txt">
+        Both platforms are overpacing but within a more manageable range. Snapchat at +8.3% is the closest to acceptable. Instagram at +18.9% needs a meaningful reduction. Neither is at immediate risk of exhaustion if corrected this week.
+      </div>
+    </div>
+    <div class="fcard info">
+      <div class="fcard-ttl">&#10003; X — Use as the Pacing Benchmark</div>
+      <div class="fcard-txt">
+        X is the only platform that has held its daily spend in line with the campaign timeline. Its current cadence is exactly what disciplined pacing looks like. The daily targets in the table above are designed to bring all other platforms to the same standard.
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Al Tazaj Campaign &nbsp;&middot;&nbsp; Prepared April 21, 2026 &nbsp;&middot;&nbsp; All figures in Saudi Riyals (SAR) &nbsp;&middot;&nbsp; PO Total: 450,000 SAR
+  </div>
+
+</div><!-- /page -->
+
+<script>
+const NAVY  = '#0c0e1d';
+const TEAL  = '#96c7c3';
+const TDARK = '#3a8a86';
+const PINK  = '#cc5f73';
+const YELLOW= '#e8a800';
+
+// ── CHART 1: Actual vs Expected ──────────────────────────────────────────
+const platforms = ['X','Instagram','TikTok','Snapchat','YouTube'];
+const expected  = [38095, 33333, 61905, 47619, 33333];
+const actual    = [38027, 39645, 74230, 51569, 40697];
+
+new Chart(document.getElementById('cmp').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: platforms,
+    datasets: [
+      {
+        label: 'Expected by Apr 21',
+        data: expected,
+        backgroundColor: 'rgba(150,199,195,0.3)',
+        borderColor: TEAL,
+        borderWidth: 1.5,
+        borderRadius: 6,
+      },
+      {
+        label: 'Actual Spent',
+        data: actual,
+        backgroundColor: actual.map((v,i) => v > expected[i]
+          ? 'rgba(204,95,115,0.7)' : 'rgba(58,138,134,0.7)'),
+        borderColor: actual.map((v,i) => v > expected[i] ? PINK : TDARK),
+        borderWidth: 1.5,
+        borderRadius: 6,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: '#7c7f96',
+          font: { family:'Baloo Bhaijaan 2', size:11 },
+          boxWidth: 12, padding: 16,
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} SAR`
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color:'#7c7f96', font:{ family:'Baloo Bhaijaan 2', size:11 } },
+        grid:  { color:'rgba(0,0,0,0.05)' }
+      },
+      y: {
+        ticks: {
+          color:'#7c7f96',
+          font:{ family:'Baloo Bhaijaan 2', size:11 },
+          callback: v => (v>=1000 ? (v/1000).toFixed(0)+'K' : v)
+        },
+        grid: { color:'rgba(0,0,0,0.05)' }
+      }
+    }
+  }
+});
+
+// ── CHART 2: % of PO Budget Consumed ────────────────────────────────────
+const pctUsed = [47.5, 56.6, 57.1, 51.6, 58.1]; // X, IG, TikTok, Snap, YT
+
+new Chart(document.getElementById('pct').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['X','Instagram','TikTok','Snapchat','YouTube'],
+    datasets: [{
+      label: '% of PO Budget Used',
+      data: pctUsed,
+      backgroundColor: pctUsed.map(v => v > 47.6
+        ? 'rgba(204,95,115,0.7)' : 'rgba(58,138,134,0.7)'),
+      borderColor: pctUsed.map(v => v > 47.6 ? PINK : TDARK),
+      borderWidth: 1.5,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.raw.toFixed(1)}% of PO budget consumed`
+        }
+      }
+    },
+    scales: {
+      x: {
+        min: 0, max: 70,
+        ticks: {
+          color:'#7c7f96',
+          font:{ family:'Baloo Bhaijaan 2', size:11 },
+          callback: v => v + '%'
+        },
+        grid: { color:'rgba(0,0,0,0.05)' }
+      },
+      y: {
+        ticks: { color:'#7c7f96', font:{ family:'Baloo Bhaijaan 2', size:11 } },
+        grid: { color:'rgba(0,0,0,0.05)' }
+      }
+    }
+  },
+  plugins: [{
+    id: 'refLine',
+    afterDraw(chart) {
+      const { ctx, chartArea:{ top, bottom }, scales:{ x } } = chart;
+      const xPos = x.getPixelForValue(47.6);
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([5,4]);
+      ctx.strokeStyle = 'rgba(12,14,29,0.25)';
+      ctx.lineWidth = 1.5;
+      ctx.moveTo(xPos, top);
+      ctx.lineTo(xPos, bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(12,14,29,0.4)';
+      ctx.font = '10px Baloo Bhaijaan 2';
+      ctx.fillText('Expected', xPos + 4, top + 14);
+      ctx.fillText('47.6%',    xPos + 4, top + 26);
+      ctx.restore();
+    }
+  }]
+});
+</script>
+</body>
+</html>
