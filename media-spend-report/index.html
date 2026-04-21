@@ -12,6 +12,8 @@
       --yellow:  #ffc409;
       --teal:    #96c7c3;
       --teal-dk: #3a8a86;
+      --blue:    #4a7db0;
+      --blue-dk: #2d5480;
       --bg:      #f3f4f9;
       --card:    #ffffff;
       --border:  #e2e4ef;
@@ -50,16 +52,6 @@
       margin-top: 5px;
     }
     .header-right { text-align: right; }
-    .badge-over {
-      display: inline-block;
-      background: var(--yellow);
-      color: var(--navy);
-      padding: 6px 18px;
-      border-radius: 20px;
-      font-size: .8rem;
-      font-weight: 700;
-      letter-spacing: .04em;
-    }
     .rdate {
       color: rgba(255,255,255,0.35);
       font-size: .8rem;
@@ -91,7 +83,7 @@
     .kpi.k-yellow::before { background: var(--yellow); }
     .kpi.k-navy::before   { background: var(--navy); }
     .kpi.k-teal::before   { background: var(--teal); }
-    .kpi.k-pink::before   { background: var(--yellow); }
+    .kpi.k-pink::before   { background: var(--blue); }
 
     .kpi-lbl {
       font-size: .68rem;
@@ -105,7 +97,7 @@
     .kpi-val.y  { color: #b08900; }
     .kpi-val.n  { color: var(--navy); }
     .kpi-val.t  { color: var(--teal-dk); }
-    .kpi-val.p  { color: #b08900; }
+    .kpi-val.p  { color: var(--blue-dk); }
     .kpi-sub { font-size: .72rem; color: var(--muted); margin-top: 6px; }
 
     /* ── SECTION TITLE ── */
@@ -163,18 +155,6 @@
       font-size: .7rem;
       color: var(--muted);
     }
-    .pacing-alert {
-      margin-top: 24px;
-      padding: 14px 18px;
-      background: #f5fbfb;
-      border: 1px solid #c8e6e4;
-      border-radius: 10px;
-      font-size: .84rem;
-      line-height: 1.65;
-      color: #2a5a57;
-    }
-    .pacing-alert strong { color: var(--teal-dk); }
-
     /* ── TABLE WRAPPER ── */
     .tbl-wrap {
       background: var(--card);
@@ -211,7 +191,7 @@
     .pname { display:flex; align-items:center; gap:9px; font-weight:700; }
     .dot   { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 
-    .over  { color: #b08900; font-weight: 700; }
+    .over  { color: var(--blue-dk); font-weight: 700; }
     .ontk  { color: var(--teal-dk); font-weight: 700; }
 
     .chip {
@@ -223,7 +203,7 @@
       text-transform: uppercase;
       letter-spacing: .05em;
     }
-    .chip-over { background: #fff8e0; color: #8a6500; border: 1px solid #f0d060; }
+    .chip-over { background: #eef3f9; color: var(--blue-dk); border: 1px solid #bfd2e6; }
     .chip-ok   { background: #eef8f7; color: var(--teal-dk); border: 1px solid #b0d8d5; }
     .chip-cur  { background: #fff8e0; color: #8a6500; border: 1px solid #f0d060; }
     .chip-dim  { background: #f2f3f8; color: var(--muted); border: 1px solid var(--border); }
@@ -257,28 +237,6 @@
     tr.w-future td { color: #c0c2d0; }
     tr.w-future td .chip { opacity: .5; }
 
-    /* ── FINDINGS ── */
-    .findings {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-    .fcard {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px 22px;
-      border-left-width: 4px;
-    }
-    .fcard.warn { border-left-color: var(--yellow); background: #fff9e6; }
-    .fcard.info { border-left-color: var(--teal); background: #f5fbfb; }
-    .fcard-ttl { font-size: .84rem; font-weight: 700; margin-bottom: 8px; }
-    .fcard.warn .fcard-ttl { color: #8a6500; }
-    .fcard.info .fcard-ttl { color: var(--teal-dk); }
-    .fcard-txt { font-size: .82rem; color: #4a4d63; line-height: 1.68; }
-    .fcard-txt strong { color: var(--navy); }
-
     /* ── REM NOTE ── */
     .rem-note {
       margin-top: 10px;
@@ -304,7 +262,7 @@
 
     @media(max-width:900px){
       .kpi-row { grid-template-columns: repeat(2,1fr); }
-      .pacing-dual, .chart-row, .findings { grid-template-columns: 1fr; }
+      .pacing-dual, .chart-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -318,7 +276,6 @@
       <div class="sub">Media Spend Pacing Report &nbsp;·&nbsp; Apr 2 – May 13, 2026</div>
     </div>
     <div class="header-right">
-      <span class="badge-over">Strong Early Delivery</span>
       <div class="rdate">Report date: April 21, 2026</div>
     </div>
   </div>
@@ -364,10 +321,10 @@
       <div>
         <div class="pacing-lbl">
           <span class="plabel">Budget Consumed</span>
-          <span class="pval" style="color:#b08900">244,169 SAR &nbsp;(54.3%)</span>
+          <span class="pval" style="color:var(--blue-dk)">244,169 SAR &nbsp;(54.3%)</span>
         </div>
         <div class="bar-bg">
-          <div class="bar-fill" style="width:54.3%; background:linear-gradient(90deg,var(--yellow),#e8a800);"></div>
+          <div class="bar-fill" style="width:54.3%; background:linear-gradient(90deg,var(--blue),var(--blue-dk));"></div>
           <div class="bar-marker" style="left:47.6%;"></div>
         </div>
         <div class="bar-footnote">
@@ -376,9 +333,6 @@
           <span>450,000 SAR</span>
         </div>
       </div>
-    </div>
-    <div class="pacing-alert">
-      <strong>Strong Early Momentum:</strong> Delivery is tracking 6.7 points ahead of the midpoint pacing curve, reflecting strong creative traction and audience response in the opening weeks of the campaign. To maintain full coverage through <strong>May 13</strong>, combined daily caps are being smoothed to <strong>9,356 SAR/day</strong> for the remaining flight.
     </div>
   </div>
 
@@ -591,7 +545,7 @@
           <td class="r" style="color:var(--teal-dk);font-weight:700">55,770</td>
           <td class="r">
             <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
-              <div class="mini-bg"><div class="mini-fill" style="width:57.1%;background:#e8a800;"></div></div>
+              <div class="mini-bg"><div class="mini-fill" style="width:57.1%;background:var(--blue);"></div></div>
               <span class="over">57.1%</span>
             </div>
           </td>
@@ -603,7 +557,7 @@
           <td class="r" style="color:var(--teal-dk);font-weight:700">29,303</td>
           <td class="r">
             <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
-              <div class="mini-bg"><div class="mini-fill" style="width:58.1%;background:#e8a800;"></div></div>
+              <div class="mini-bg"><div class="mini-fill" style="width:58.1%;background:var(--blue);"></div></div>
               <span class="over">58.1%</span>
             </div>
           </td>
@@ -615,7 +569,7 @@
           <td class="r" style="color:var(--teal-dk);font-weight:700">30,355</td>
           <td class="r">
             <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
-              <div class="mini-bg"><div class="mini-fill" style="width:56.6%;background:#e8a800;"></div></div>
+              <div class="mini-bg"><div class="mini-fill" style="width:56.6%;background:var(--blue);"></div></div>
               <span class="over">56.6%</span>
             </div>
           </td>
@@ -627,7 +581,7 @@
           <td class="r" style="color:var(--teal-dk);font-weight:700">48,431</td>
           <td class="r">
             <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
-              <div class="mini-bg"><div class="mini-fill" style="width:51.6%;background:#e8a800;"></div></div>
+              <div class="mini-bg"><div class="mini-fill" style="width:51.6%;background:var(--blue);"></div></div>
               <span class="over">51.6%</span>
             </div>
           </td>
@@ -659,35 +613,6 @@
     </table>
   </div>
 
-  <!-- KEY FINDINGS -->
-  <div class="stitle">Key Findings</div>
-  <div class="findings">
-    <div class="fcard warn">
-      <div class="fcard-ttl">YouTube — Strongest Pacing Signal</div>
-      <div class="fcard-txt">
-        YouTube is delivering at the fastest pace in the mix at <strong>+22.1%</strong> ahead of plan, a strong indicator of creative resonance and audience intent on the platform. We'll smooth the daily cap from this week forward to keep momentum steady through May 13.
-      </div>
-    </div>
-    <div class="fcard warn">
-      <div class="fcard-ttl">TikTok — Leading Reach Contribution</div>
-      <div class="fcard-txt">
-        As the anchor platform in the mix, TikTok has delivered the largest share of campaign impressions so far (<strong>74,230 SAR</strong>). Strong early traction has pulled delivery slightly forward; we'll rebalance the remaining daily budget to preserve consistent reach through the final week.
-      </div>
-    </div>
-    <div class="fcard warn">
-      <div class="fcard-ttl">Instagram &amp; Snapchat — Healthy Acceleration</div>
-      <div class="fcard-txt">
-        Both channels are delivering ahead of plan in a manageable range — Snapchat at <strong>+8.3%</strong> and Instagram at <strong>+18.9%</strong>. With a light daily-cap adjustment this week, both platforms remain on course for full flight completion on May 13.
-      </div>
-    </div>
-    <div class="fcard info">
-      <div class="fcard-ttl">X — On-Plan Pacing Model</div>
-      <div class="fcard-txt">
-        X has held exactly to its planned daily cadence (<strong>&minus;0.2%</strong> variance), offering a useful pacing reference for the remainder of the campaign. The recommended daily targets above mirror this disciplined cadence across the remaining 22 days.
-      </div>
-    </div>
-  </div>
-
   <!-- FOOTER -->
   <div class="footer">
     Al Tazaj Campaign &nbsp;&middot;&nbsp; Prepared April 21, 2026 &nbsp;&middot;&nbsp; All figures in Saudi Riyals (SAR) &nbsp;&middot;&nbsp; PO Total: 450,000 SAR
@@ -699,7 +624,7 @@
 const NAVY  = '#0c0e1d';
 const TEAL  = '#96c7c3';
 const TDARK = '#3a8a86';
-const YELLOW= '#e8a800';
+const BLUE  = '#4a7db0';
 
 // ── CHART 1: Actual vs Expected ──────────────────────────────────────────
 const platforms = ['X','Instagram','TikTok','Snapchat','YouTube'];
@@ -723,8 +648,8 @@ new Chart(document.getElementById('cmp').getContext('2d'), {
         label: 'Actual Spent',
         data: actual,
         backgroundColor: actual.map((v,i) => v > expected[i]
-          ? 'rgba(232,168,0,0.6)' : 'rgba(58,138,134,0.7)'),
-        borderColor: actual.map((v,i) => v > expected[i] ? YELLOW : TDARK),
+          ? 'rgba(74,125,176,0.55)' : 'rgba(58,138,134,0.7)'),
+        borderColor: actual.map((v,i) => v > expected[i] ? BLUE : TDARK),
         borderWidth: 1.5,
         borderRadius: 6,
       }
@@ -775,8 +700,8 @@ new Chart(document.getElementById('pct').getContext('2d'), {
       label: '% of PO Budget Used',
       data: pctUsed,
       backgroundColor: pctUsed.map(v => v > 47.6
-        ? 'rgba(232,168,0,0.6)' : 'rgba(58,138,134,0.7)'),
-      borderColor: pctUsed.map(v => v > 47.6 ? YELLOW : TDARK),
+        ? 'rgba(74,125,176,0.55)' : 'rgba(58,138,134,0.7)'),
+      borderColor: pctUsed.map(v => v > 47.6 ? BLUE : TDARK),
       borderWidth: 1.5,
       borderRadius: 6,
     }]
